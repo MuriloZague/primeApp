@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, StyleSheet, TouchableOpacity, Text, Image, ScrollView, FlatList } from "react-native";
 import { api } from "../../services/api";
 import { CardMovies } from "../../components/CardMovies";
+import { MOVIESMORE } from "../../utils/moviesMore";
+import { MoviesCard } from "../../components/CardMovies/more";
+import { MOVIESMORELANGUAGE } from "../../utils/moviesLanguage";
 
 interface Movie {
     id: number;
@@ -13,9 +16,10 @@ interface Movie {
 export function Home() {
 
     const [discoveryMovies, setDiscoveryMovies] = useState<Movie[]>([]);
-    const [page, setPage] = useState(2);
+    const [page, setPage] = useState(4);
 
     const [discovery, setDiscovery] = useState<Movie[]>([]);
+    const scrollViewRef = useRef(null);
 
     useEffect(() => {
         loadMoreData();
@@ -36,6 +40,10 @@ export function Home() {
         const response = await api.get("/movie/popular");
         setDiscovery([...discovery, ...response.data.results]);
     }
+
+    const handleScrollToTop = () => {
+        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+      };
 
     return (
         <View style={styles.container}>
@@ -59,7 +67,7 @@ export function Home() {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.contentMovies}>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.contentMovies} ref={scrollViewRef}>
             
           <TouchableOpacity>
                 <Image style={styles.movieImageThumbnail} source={require("../../assets/the_wheel_of_time.png")}/>
@@ -95,11 +103,35 @@ export function Home() {
             showsHorizontalScrollIndicator={false}
             renderItem={(item) => <CardMovies data={item.item} />}
             style={styles.contentList}
+            onEndReached={() => loadMoreData()}
+            onEndReachedThreshold={0.5}
         />
 
         <Text style={styles.titleMovies}>Descubra mais</Text>
 
+        <FlatList 
+            data={MOVIESMORE}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => <MoviesCard movieURL={item.moviesURL}/>}
+            horizontal
+            contentContainerStyle={styles.contentList2}
+            showsHorizontalScrollIndicator={false}
+        />
 
+        <Text style={styles.titleMovies}>Em outras Línguas</Text>   
+
+        <FlatList 
+            data={MOVIESMORELANGUAGE}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => <MoviesCard movieURL={item.moviesURL}/>}
+            horizontal
+            contentContainerStyle={styles.contentList2}
+            showsHorizontalScrollIndicator={false}
+        />
+
+        <TouchableOpacity onPress={handleScrollToTop} style={styles.upButton}>
+            <Image style={styles.upButtonImg} source={require('../../assets/pointerWhite.png')}/>
+        </TouchableOpacity>
 
         </ScrollView>
     </View>
@@ -149,7 +181,7 @@ const styles = StyleSheet.create ({
         paddingRight: 30,
     },
     contentList2: {
-        height: 100,
+        paddingBottom: 10,
         paddingLeft: 15,
         paddingRight: 30,
     },
@@ -160,6 +192,17 @@ const styles = StyleSheet.create ({
         padding: 14,
     },
     contentMovies: {
-
+    },
+    upButton: {
+        alignSelf: 'center',
+        backgroundColor: '#4c5c70',
+        padding: 5,
+        borderRadius: 100,
+        marginTop: 5,
+        marginBottom: 10,
+    },
+    upButtonImg: {
+        height: 20,
+        width: 20,
     },
 })

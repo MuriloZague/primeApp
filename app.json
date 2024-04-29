@@ -3,8 +3,19 @@
     "name": "primeApp",
     "slug": "primeApp",
     "version": "1.0.0",
+    "orientation": "portait",
+    "splash": {
+      "image": "./src/assets/splash.png",
+      "resizeMode": "contain",
+      "backGroundColor": "#232F3E"
+    },
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "669cd129-3464-475e-8bfa-d6f4bcca5503"
+      }
+    }
   }
 }
